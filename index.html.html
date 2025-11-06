@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 BeautyStudio Pro - Sistem Programări</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --manichiura: #FF6B8B;
+            --pedichiura: #8B5FBF;
+            --coafura: #4ECDC4;
+            --makeup: #FFD166;
+            --dark: #2D3748;
+            --light: #F7FAFC;
+            --gray: #718096;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 90vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, var(--dark) 0%, #4A5568 100%);
+            color: white;
+            padding: 30px 20px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .logo h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .service-filter {
+            margin: 25px 0;
+        }
+
+        .service-filter-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 12px 15px;
+            margin: 6px 0;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            gap: 10px;
+        }
+
+        .service-filter-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .service-filter-btn.active {
+            background: rgba(255,255,255,0.25);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .service-filter-btn.manichiura.active {
+            border-left: 4px solid var(--manichiura);
+        }
+
+        .service-filter-btn.pedichiura.active {
+            border-left: 4px solid var(--pedichiura);
+        }
+
+        .service-filter-btn.coafura.active {
+            border-left: 4px solid var(--coafura);
+        }
+
+        .service-filter-btn.makeup.active {
+            border-left: 4px solid var(--makeup);
+        }
+
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 8px 0;
+            background: transparent;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            gap: 12px;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .menu-btn.active {
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .menu-btn i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .content {
+            padding: 0;
+            background: var(--light);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            background: white;
+            padding: 25px 30px;
+            border-bottom: 1px solid #E5E7EB;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .service-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-manichiura {
+            background: rgba(255, 107, 139, 0.1);
+            color: var(--manichiura);
+        }
+
+        .badge-pedichiura {
+            background: rgba(139, 95, 191, 0.1);
+            color: var(--pedichiura);
+        }
+
+        .badge-coafura {
+            background: rgba(78, 205, 196, 0.1);
+            color: var(--coafura);
+        }
+
+        .badge-makeup {
+            background: rgba(255, 209, 102, 0.1);
+            color: var(--makeup);
+        }
+
+        .content-header h2 {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .content-body {
+            padding: 30px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 5px solid var(--primary);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.95em;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .quick-action-btn {
+            background: white;
+            padding: 25px 15px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .quick-action-btn.manichiura:hover { border-color: var(--manichiura); }
+        .quick-action-btn.pedichiura:hover { border-color: var(--pedichiura); }
+        .quick-action-btn.coafura:hover { border-color: var(--coafura); }
+        .quick-action-btn.makeup:hover { border-color: var(--makeup); }
+
+        .action-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        /* Form Elements */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 95, 191, 0.1);
+        }
+
+        /* Service Cards */
+        .service-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .service-card {
+            background: white;
+            padding: 25px;
+            border: 2px solid #E5E7EB;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .service-card.selected {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .service-card.manichiura.selected { 
+            border-color: var(--manichiura);
+            background: linear-gradient(135deg, var(--manichiura), #FF8FA3);
+            color: white;
+        }
+
+        .service-card.pedichiura.selected { 
+            border-color: var(--pedichiura);
+            background: linear-gradient(135deg, var(--pedichiura), #9F7AEA);
+            color: white;
+        }
+
+        .service-card.coafura.selected { 
+            border-color: var(--coafura);
+            background: linear-gradient(135deg, var(--coafura), #68D391);
+            color: white;
+        }
+
+        .service-card.makeup.selected { 
+            border-color: var(--makeup);
+            background: linear-gradient(135deg, var(--makeup), #F6E05E);
+            color: var(--dark);
+        }
+
+        .service-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        /* Time Slots */
+        .time-slots-container {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin: 20px 0;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .time-slot {
+            padding: 15px 10px;
+            background: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .time-slot:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .time-slot.occupied {
+            background: #E53E3E;
+            border-color: #E53E3E;
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .time-slot.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Appointment List */
+        .appointment-list {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .appointment-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--gray);
+        }
+
+        .appointment-card:hover {
+            transform: translateX(5px);
+        }
+
+        .appointment-card.manichiura { border-left-color: var(--manichiura); }
+        .appointment-card.pedichiura { border-left-color: var(--pedichiura); }
+        .appointment-card.coafura { border-left-color: var(--coafura); }
+        .appointment-card.makeup { border-left-color: var(--makeup); }
+
+        .appointment-info h4 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .appointment-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--gray);
+            font-size: 0.9em;
+            flex-wrap: wrap;
+        }
+
+        .appointment-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-confirmed {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--pedichiura);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #7C3AED;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #10B981;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #F59E0B;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #EF4444;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 20px 25px;
+            background: white;
+            color: var(--dark);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            border-left: 5px solid #10B981;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            border-left-color: #EF4444;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: var(--pedichiura);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 1.2em;
+            cursor: pointer;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+            
+            .sidebar {
+                display: block;
+                padding: 20px 15px;
+                order: 2;
+            }
+            
+            .content {
+                order: 1;
+            }
+            
+            .logo h1 {
+                font-size: 1.4em;
+            }
+            
+            .service-filter-btn, .menu-btn {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                background: white;
+            }
+            
+            .container {
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -280px;
+                height: 100vh;
+                z-index: 999;
+                transition: left 0.3s ease;
+                overflow-y: auto;
+                padding: 60px 20px 20px 20px;
+            }
+            
+            .sidebar.mobile-open {
+                left: 0;
+            }
+            
+            .content-body {
+                padding: 20px 15px;
+            }
+            
+            .content-header {
+                padding: 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .content-header h2 {
+                font-size: 1.5em;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-number {
+                font-size: 1.8em;
+            }
+            
+            .stat-label {
+                font-size: 0.85em;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            
+            .quick-action-btn {
+                padding: 15px 10px;
+            }
+            
+            .action-icon {
+                font-size: 2em;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .service-cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            
+            .service-card {
+                padding: 20px 15px;
+            }
+            
+            .service-icon {
+                font-size: 2em;
+            }
+            
+            .time-slots {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 8px;
+            }
+            
+            .time-slot {
+                padding: 12px 8px;
+                font-size: 14px;
+            }
+            
+            .form-input {
+                padding: 12px;
+                font-size: 16px;
+            }
+            
+            .btn {
+                padding: 14px 20px;
+                font-size: 16px;
+            }
+            
+            .appointment-card {
+                padding: 15px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .appointment-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .appointment-actions {
+                align-self: flex-end;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .service-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .service-filter-btn, .menu-btn {
+                padding: 15px 12px;
+                font-size: 15px;
+            }
+            
+            .menu-btn i {
+                width: 25px;
+                font-size: 1.1em;
+            }
+            
+            .mobile-menu-toggle {
+                top: 15px;
+                left: 15px;
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>🌸 BeautyStudio Pro</h1>
+                <p>Salon Complete Beauty</p>
+            </div>
+            
+            <div class="service-filter">
+                <button class="service-filter-btn active" onclick="filterByService('all')">
+                    <i class="fas fa-star"></i>
+                    <span>Toate Serviciile</span>
+                </button>
+                <button class="service-filter-btn manichiura" onclick="filterByService('manichiura')">
+                    <i class="fas fa-hand-sparkles"></i>
+                    <span>Manichiură</span>
+                </button>
+                <button class="service-filter-btn pedichiura" onclick="filterByService('pedichiura')">
+                    <i class="fas fa-foot"></i>
+                    <span>Pedichiură</span>
+                </button>
+                <button class="service-filter-btn coafura" onclick="filterByService('coafura')">
+                    <i class="fas fa-cut"></i>
+                    <span>Coafură</span>
+                </button>
+                <button class="service-filter-btn makeup" onclick="filterByService('makeup')">
+                    <i class="fas fa-palette"></i>
+                    <span>Makeup</span>
+                </button>
+            </div>
+            
+            <button class="menu-btn active" onclick="showSection('dashboard')">
+                <i class="fas fa-chart-bar"></i>
+                <span>Dashboard</span>
+            </button>
+            
+            <button class="menu-btn" onclick="showSection('programare')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Programare Nouă</span>
+            </button>
+            
+            <button class="menu-btn" onclick="showSection('programari')">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Toate Programările</span>
+            </button>
+            
+            <button class="menu-btn" onclick="showSection('statistici')">
+                <i class="fas fa-chart-pie"></i>
+                <span>Statistici</span>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="content-header">
+                <div class="header-info">
+                    <h2 id="section-title">Dashboard</h2>
+                    <span class="service-badge" id="service-badge">Toate Serviciile</span>
+                </div>
+                <div id="section-subtitle">Vizualizează activitatea recentă</div>
+            </div>
+
+            <div class="content-body">
+                <!-- Dashboard -->
+                <div id="dashboard" class="section active">
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="stats-manichiura">0</div>
+                            <div class="stat-label">Programări Manichiură Azi</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="stats-pedichiura">0</div>
+                            <div class="stat-label">Programări Pedichiură Azi</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="stats-coafura">0</div>
+                            <div class="stat-label">Programări Coafură Azi</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="stats-makeup">0</div>
+                            <div class="stat-label">Programări Makeup Azi</div>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <div class="quick-action-btn manichiura" onclick="quickProgramare('manichiura')">
+                            <div class="action-icon">💅</div>
+                            <div>Manichiură</div>
+                        </div>
+                        <div class="quick-action-btn pedichiura" onclick="quickProgramare('pedichiura')">
+                            <div class="action-icon">🦶</div>
+                            <div>Pedichiură</div>
+                        </div>
+                        <div class="quick-action-btn coafura" onclick="quickProgramare('coafura')">
+                            <div class="action-icon">💇‍♀️</div>
+                            <div>Coafură</div>
+                        </div>
+                        <div class="quick-action-btn makeup" onclick="quickProgramare('makeup')">
+                            <div class="action-icon">💄</div>
+                            <div>Makeup</div>
+                        </div>
+                    </div>
+
+                    <div class="time-slots-container">
+                        <h3>Programările de Azi</h3>
+                        <div id="today-appointments">
+                            <!-- Today's appointments will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Programare Nouă -->
+                <div id="programare" class="section">
+                    <div class="form-grid">
+                        <div>
+                            <h3>Selectează Serviciul</h3>
+                            <div class="service-cards">
+                                <div class="service-card manichiura" onclick="selectServiceType('manichiura')">
+                                    <div class="service-icon">💅</div>
+                                    <h4>Manichiură</h4>
+                                    <p>Îngrijire și design unghii</p>
+                                </div>
+                                <div class="service-card pedichiura" onclick="selectServiceType('pedichiura')">
+                                    <div class="service-icon">🦶</div>
+                                    <h4>Pedichiură</h4>
+                                    <p>Îngrijire picioare</p>
+                                </div>
+                                <div class="service-card coafura" onclick="selectServiceType('coafura')">
+                                    <div class="service-icon">💇‍♀️</div>
+                                    <h4>Coafură</h4>
+                                    <p>Coafuri și styling</p>
+                                </div>
+                                <div class="service-card makeup" onclick="selectServiceType('makeup')">
+                                    <div class="service-icon">💄</div>
+                                    <h4>Makeup</h4>
+                                    <p>Machiaj profesional</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Nume Serviciu</label>
+                                <input type="text" id="service-name" class="form-input" placeholder="Ex: Manichiura Gel, Coafură Nuntă, etc.">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Preț (lei)</label>
+                                <input type="number" id="service-price" class="form-input" placeholder="Introdu prețul" min="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Durată (ore)</label>
+                                <input type="number" id="service-duration" class="form-input" placeholder="Ex: 1.5" min="0.5" step="0.5" value="1" onchange="loadTimeSlots()">
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3>Detalii Programare</h3>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Data</label>
+                                <input type="date" id="selected-date" class="form-input" onchange="loadTimeSlots()">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Ore Disponibile</label>
+                                <div class="time-slots" id="time-slots">
+                                    <!-- Time slots will be loaded here -->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Nume Client</label>
+                                <input type="text" id="client-name" class="form-input" placeholder="Introdu numele clientului">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Telefon</label>
+                                <input type="tel" id="client-phone" class="form-input" placeholder="Introdu numărul de telefon">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Email (opțional)</label>
+                                <input type="email" id="client-email" class="form-input" placeholder="Introdu adresa de email">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Status Programare</label>
+                                <select id="appointment-status" class="form-input">
+                                    <option value="pending">În așteptare</option>
+                                    <option value="confirmed">Confirmată</option>
+                                </select>
+                            </div>
+
+                            <button class="btn btn-primary" onclick="saveAppointment()" style="width: 100%;">
+                                <i class="fas fa-save"></i>
+                                Salvează Programarea
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toate Programările -->
+                <div id="programari" class="section">
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                        <input type="date" id="filter-date" class="form-input" onchange="loadAppointments()" style="flex: 1;">
+                        <select id="status-filter" class="form-input" onchange="loadAppointments()" style="flex: 1;">
+                            <option value="all">Toate Stările</option>
+                            <option value="confirmed">Confirmate</option>
+                            <option value="pending">În Așteptare</option>
+                            <option value="cancelled">Anulate</option>
+                        </select>
+                    </div>
+
+                    <div class="appointment-list" id="appointment-list">
+                        <!-- Appointments will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Statistici -->
+                <div id="statistici" class="section">
+                    <h3>Statistici Complete</h3>
+                    <div class="stats" id="detailed-stats">
+                        <!-- Statistics will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">Operațiune realizată cu succes!</span>
+    </div>
+
+    <script>
+    // === CONFIGURARE GOOGLE SHEETS ===
+    const SHEET_ID = '18APz334fGj_uo6funlfJvPalQ5HlYpql3qL5vhUsJTw'; // Înlocuiește cu ID-ul tău
+    const SHEET_NAME = 'programari'; // Numele sheet-ului (de obicei Sheet1)
+
+    // Date și variabile globale
+    let appointments = [];
+    let selectedDate = new Date().toISOString().split('T')[0];
+    let selectedTime = null;
+    let selectedServiceType = null;
+    let currentServiceFilter = 'all';
+
+    // Nume servicii
+    const serviceNames = {
+        'manichiura': 'Manichiură',
+        'pedichiura': 'Pedichiură',
+        'coafura': 'Coafură',
+        'makeup': 'Makeup'
+    };
+
+    // Culori pentru servicii
+    const serviceColors = {
+        'manichiura': '#FF6B8B',
+        'pedichiura': '#8B5FBF', 
+        'coafura': '#4ECDC4',
+        'makeup': '#FFD166'
+    };
+
+    // Inițializare
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('selected-date').value = selectedDate;
+        document.getElementById('filter-date').value = selectedDate;
+        loadAppointmentsFromSheet();
+        addRefreshButton(); // Adaugă buton refresh
+    });
+
+    // === FUNCȚII GOOGLE SHEETS ===
+
+    async function loadAppointmentsFromSheet() {
+        try {
+            showNotification('Se încarcă programările...', 'success');
+            
+            const response = await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`);
+            const data = await response.json();
+            
+            appointments = data.map(row => ({
+                id: parseInt(row.id) || Date.now(),
+                date: row.date,
+                time: row.time,
+                client: row.client,
+                phone: row.phone,
+                email: row.email,
+                serviceType: row.serviceType,
+                serviceName: row.serviceName,
+                duration: parseFloat(row.duration) || 1,
+                price: parseFloat(row.price) || 0,
+                status: row.status || 'pending',
+                createdAt: row.createdAt || new Date().toISOString()
+            }));
+            
+            updateStats();
+            loadTodayAppointments();
+            loadDetailedStats();
+            loadAppointments();
+            showNotification('Programările au fost încărcate', 'success');
+        } catch (error) {
+            console.error('Eroare la încărcare:', error);
+            showNotification('Eroare la încărcarea programărilor. Verifică conexiunea.', 'error');
+        }
+    }
+
+    // Adaugă buton de refresh în header
+    function addRefreshButton() {
+        const header = document.querySelector('.content-header');
+        if (!header.querySelector('.refresh-btn')) {
+            const refreshBtn = document.createElement('button');
+            refreshBtn.className = 'btn btn-primary refresh-btn';
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+            refreshBtn.onclick = loadAppointmentsFromSheet;
+            header.appendChild(refreshBtn);
+        }
+    }
+
+    // Toggle sidebar pe mobile
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('mobile-open');
+    }
+
+    // Navigare între secțiuni
+    function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(sectionId).classList.add('active');
+        
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+        
+        updateSectionTitles(sectionId);
+        
+        // Închide sidebar-ul pe mobile după selectare
+        if (window.innerWidth <= 768) {
+            toggleSidebar();
+        }
+        
+        if (sectionId === 'dashboard') {
+            updateStats();
+            loadTodayAppointments();
+        } else if (sectionId === 'programari') {
+            loadAppointments();
+        } else if (sectionId === 'statistici') {
+            loadDetailedStats();
+        }
+    }
+
+    function updateSectionTitles(sectionId) {
+        const titles = {
+            'dashboard': 'Dashboard',
+            'programare': 'Programare Nouă',
+            'programari': 'Toate Programările',
+            'statistici': 'Statistici'
+        };
+        
+        const subtitles = {
+            'dashboard': 'Vizualizează activitatea recentă',
+            'programare': 'Adaugă o nouă programare',
+            'programari': 'Gestionează toate programările',
+            'statistici': 'Analizează performanța'
+        };
+        
+        document.getElementById('section-title').textContent = titles[sectionId];
+        document.getElementById('section-subtitle').textContent = subtitles[sectionId];
+        
+        const serviceBadge = document.getElementById('service-badge');
+        if (currentServiceFilter === 'all') {
+            serviceBadge.textContent = 'Toate Serviciile';
+            serviceBadge.className = 'service-badge';
+        } else {
+            serviceBadge.textContent = serviceNames[currentServiceFilter];
+            serviceBadge.className = `service-badge badge-${currentServiceFilter}`;
+        }
+    }
+
+    // Filtrare după serviciu
+    function filterByService(serviceType) {
+        currentServiceFilter = serviceType;
+        
+        document.querySelectorAll('.service-filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+        
+        updateStats();
+        loadAppointments();
+        loadTodayAppointments();
+        loadDetailedStats();
+        updateSectionTitles(document.querySelector('.section.active').id);
+    }
+
+    // Programare rapidă
+    function quickProgramare(serviceType) {
+        selectServiceType(serviceType);
+        showSection('programare');
+    }
+
+    // Selectare tip serviciu
+    function selectServiceType(serviceType) {
+        selectedServiceType = serviceType;
+        
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        event.currentTarget.classList.add('selected');
+        
+        document.getElementById('service-name').value = serviceNames[serviceType];
+        
+        loadTimeSlots();
+    }
+
+    // Încarcă sloturile de timp cu verificare SUPRAUNERE CORECTĂ
+    function loadTimeSlots() {
+        if (!selectedServiceType) {
+            document.getElementById('time-slots').innerHTML = '<p style="text-align: center; color: var(--gray);">Selectează mai întâi un serviciu</p>';
+            return;
+        }
+
+        selectedDate = document.getElementById('selected-date').value;
+        const timeSlotsContainer = document.getElementById('time-slots');
+        timeSlotsContainer.innerHTML = '';
+        
+        // Obține toate programările pentru aceeași zi și același serviciu
+        const sameServiceAppointments = appointments.filter(app => 
+            app.date === selectedDate && 
+            app.status === 'confirmed' &&
+            app.serviceType === selectedServiceType
+        );
+        
+        // Generează sloturi de 30 în 30 minute
+        for (let hour = 9; hour <= 18; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const timeSlot = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                
+                // VERIFICARE CORECTĂ: Slotul este ocupat dacă se suprapune cu orice programare existentă
+                const isOccupied = isTimeSlotOccupied(timeSlot, sameServiceAppointments);
+                
+                const slotElement = document.createElement('div');
+                slotElement.className = `time-slot ${isOccupied ? 'occupied' : ''}`;
+                slotElement.textContent = timeSlot;
+                
+                if (!isOccupied) {
+                    slotElement.onclick = function() {
+                        selectTimeSlot(this, timeSlot);
+                    };
+                    slotElement.title = 'Disponibil pentru ' + serviceNames[selectedServiceType];
+                } else {
+                    slotElement.title = 'Interval ocupat pentru ' + serviceNames[selectedServiceType];
+                }
+                
+                timeSlotsContainer.appendChild(slotElement);
+            }
+        }
+    }
+
+    // Verificare SUPRAUNERE COMPLETĂ pentru același serviciu
+    function isTimeSlotOccupied(timeSlot, sameServiceAppointments) {
+        const slotTime = new Date(`2000-01-01T${timeSlot}`);
+        const selectedDuration = parseFloat(document.getElementById('service-duration').value) || 1;
+        const slotEndTime = new Date(slotTime.getTime() + selectedDuration * 60 * 60 * 1000);
+        
+        for (let appointment of sameServiceAppointments) {
+            const appointmentStart = new Date(`2000-01-01T${appointment.time}`);
+            const appointmentEnd = new Date(appointmentStart.getTime() + appointment.duration * 60 * 60 * 1000);
+            
+            // VERIFICARE CORECTĂ: Suprapunere în orice formă
+            const overlaps = (
+                // Slotul începe în timpul unei programări existente
+                (slotTime >= appointmentStart && slotTime < appointmentEnd) ||
+                // Slotul se termină în timpul unei programări existente
+                (slotEndTime > appointmentStart && slotEndTime <= appointmentEnd) ||
+                // Slotul cuprinde complet o programare existentă
+                (slotTime <= appointmentStart && slotEndTime >= appointmentEnd)
+            );
+            
+            if (overlaps) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    // Selectează slotul de timp
+    function selectTimeSlot(element, time) {
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.classList.remove('selected');
+        });
+        
+        element.classList.add('selected');
+        selectedTime = time;
+    }
+
+    // Salvează programarea cu VERIFICARE FINALĂ
+    function saveAppointment() {
+        const serviceName = document.getElementById('service-name').value;
+        const servicePrice = parseFloat(document.getElementById('service-price').value);
+        const serviceDuration = parseFloat(document.getElementById('service-duration').value);
+        const clientName = document.getElementById('client-name').value;
+        const clientPhone = document.getElementById('client-phone').value;
+        const status = document.getElementById('appointment-status').value;
+        
+        if (!selectedServiceType || !serviceName || !servicePrice || !serviceDuration || 
+            !selectedDate || !selectedTime || !clientName) {
+            showNotification('Completează toate câmpurile obligatorii!', 'error');
+            return;
+        }
+        
+        // VERIFICARE FINALĂ SUPRAUNERE
+        const sameServiceAppointments = appointments.filter(app => 
+            app.date === selectedDate && 
+            app.status === 'confirmed' &&
+            app.serviceType === selectedServiceType
+        );
+        
+        const slotTime = new Date(`2000-01-01T${selectedTime}`);
+        const newAppointmentEnd = new Date(slotTime.getTime() + serviceDuration * 60 * 60 * 1000);
+        
+        let hasOverlap = false;
+        for (let appointment of sameServiceAppointments) {
+            const appointmentStart = new Date(`2000-01-01T${appointment.time}`);
+            const appointmentEnd = new Date(appointmentStart.getTime() + appointment.duration * 60 * 60 * 1000);
+            
+            const overlaps = (
+                (slotTime >= appointmentStart && slotTime < appointmentEnd) ||
+                (newAppointmentEnd > appointmentStart && newAppointmentEnd <= appointmentEnd) ||
+                (slotTime <= appointmentStart && newAppointmentEnd >= appointmentEnd)
+            );
+            
+            if (overlaps) {
+                hasOverlap = true;
+                break;
+            }
+        }
+        
+        if (hasOverlap) {
+            showNotification(`Intervalul se suprapune cu o programare existentă pentru ${serviceNames[selectedServiceType]}! Alege alt interval.`, 'error');
+            return;
+        }
+        
+        const newAppointment = {
+            id: Date.now(),
+            date: selectedDate,
+            time: selectedTime,
+            client: clientName,
+            phone: clientPhone,
+            email: document.getElementById('client-email').value,
+            serviceType: selectedServiceType,
+            serviceName: serviceName,
+            duration: serviceDuration,
+            price: servicePrice,
+            status: status,
+            createdAt: new Date().toISOString()
+        };
+        
+        // Salvare temporară în localStorage + refresh manual
+        appointments.push(newAppointment);
+        localStorage.setItem('appointments', JSON.stringify(appointments));
+        
+        showNotification('Programare salvată LOCAL! Folosește butonul Refresh pentru sincronizare.', 'success');
+        resetForm();
+        updateStats();
+        loadTodayAppointments();
+        loadDetailedStats();
+    }
+
+    // Resetează formularul
+    function resetForm() {
+        document.getElementById('service-name').value = '';
+        document.getElementById('service-price').value = '';
+        document.getElementById('service-duration').value = '1';
+        document.getElementById('client-name').value = '';
+        document.getElementById('client-phone').value = '';
+        document.getElementById('client-email').value = '';
+        
+        selectedTime = null;
+        selectedServiceType = null;
+        
+        document.querySelectorAll('.time-slot.selected, .service-card.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        loadTimeSlots();
+    }
+
+    // Încarcă programările
+    function loadAppointments() {
+        const filterDate = document.getElementById('filter-date').value;
+        const statusFilter = document.getElementById('status-filter').value;
+        const container = document.getElementById('appointment-list');
+        container.innerHTML = '';
+        
+        let filteredAppointments = appointments.filter(app => 
+            app.date === filterDate
+        );
+        
+        if (currentServiceFilter !== 'all') {
+            filteredAppointments = filteredAppointments.filter(app => app.serviceType === currentServiceFilter);
+        }
+        
+        if (statusFilter !== 'all') {
+            filteredAppointments = filteredAppointments.filter(app => app.status === statusFilter);
+        }
+        
+        if (filteredAppointments.length === 0) {
+            container.innerHTML = '<p>Nu există programări pentru aceste criterii.</p>';
+            return;
+        }
+        
+        filteredAppointments.sort((a, b) => a.time.localeCompare(b.time)).forEach(app => {
+            const statusClass = `status-${app.status}`;
+            const statusText = getStatusText(app.status);
+            
+            const appointmentElement = document.createElement('div');
+            appointmentElement.className = `appointment-card ${app.serviceType}`;
+            appointmentElement.innerHTML = `
+                <div class="appointment-info">
+                    <h4>${app.time} - ${app.client}</h4>
+                    <div class="appointment-meta">
+                        <span><strong>${app.serviceName}</strong></span>
+                        <span>${app.duration} ore</span>
+                        <span>${app.price} lei</span>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="appointment-meta">
+                        <span class="service-badge badge-${app.serviceType}">${serviceNames[app.serviceType]}</span>
+                        ${app.phone ? `<span>Tel: ${app.phone}</span>` : ''}
+                    </div>
+                </div>
+                <div class="appointment-actions">
+                    <button class="btn btn-success btn-sm" onclick="changeAppointmentStatus(${app.id}, 'confirmed')">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-warning btn-sm" onclick="changeAppointmentStatus(${app.id}, 'pending')">
+                        <i class="fas fa-clock"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteAppointment(${app.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(appointmentElement);
+        });
+    }
+
+    // Schimbă statusul programării
+    function changeAppointmentStatus(id, newStatus) {
+        appointments = appointments.map(app => 
+            app.id === id ? { ...app, status: newStatus } : app
+        );
+        localStorage.setItem('appointments', JSON.stringify(appointments));
+        loadAppointments();
+        updateStats();
+        loadDetailedStats();
+        showNotification('Status actualizat!', 'success');
+    }
+
+    // Șterge programarea
+    function deleteAppointment(id) {
+        if (confirm('Sigur dorești să ștergi această programare?')) {
+            appointments = appointments.filter(app => app.id !== id);
+            localStorage.setItem('appointments', JSON.stringify(appointments));
+            loadAppointments();
+            updateStats();
+            loadDetailedStats();
+            showNotification('Programare ștearsă!', 'success');
+        }
+    }
+
+    // Obține textul pentru status
+    function getStatusText(status) {
+        const statusMap = {
+            'confirmed': 'Confirmată',
+            'pending': 'În așteptare',
+            'cancelled': 'Anulată'
+        };
+        return statusMap[status] || status;
+    }
+
+    // Încarcă programările de azi
+    function loadTodayAppointments() {
+        const container = document.getElementById('today-appointments');
+        const today = new Date().toISOString().split('T')[0];
+        
+        let todayAppointments = appointments.filter(app => 
+            app.date === today && app.status !== 'cancelled'
+        );
+        
+        if (currentServiceFilter !== 'all') {
+            todayAppointments = todayAppointments.filter(app => app.serviceType === currentServiceFilter);
+        }
+        
+        todayAppointments.sort((a, b) => a.time.localeCompare(b.time));
+        
+        if (todayAppointments.length === 0) {
+            container.innerHTML = '<p>Nu există programări pentru astăzi.</p>';
+            return;
+        }
+        
+        let html = '<div class="appointment-list">';
+        todayAppointments.forEach(app => {
+            const statusClass = `status-${app.status}`;
+            const statusText = getStatusText(app.status);
+            
+            html += `
+                <div class="appointment-card ${app.serviceType}">
+                    <div class="appointment-info">
+                        <h4>${app.time} - ${app.client}</h4>
+                        <div class="appointment-meta">
+                            <span>${app.serviceName}</span>
+                            <span>${app.duration} ore</span>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    // Actualizează statisticile dashboard
+    function updateStats() {
+        const today = new Date().toISOString().split('T')[0];
+        
+        const stats = {
+            'manichiura': 0,
+            'pedichiura': 0,
+            'coafura': 0,
+            'makeup': 0
+        };
+        
+        appointments.forEach(app => {
+            if (app.date === today && app.status === 'confirmed') {
+                stats[app.serviceType]++;
+            }
+        });
+        
+        document.getElementById('stats-manichiura').textContent = stats.manichiura;
+        document.getElementById('stats-pedichiura').textContent = stats.pedichiura;
+        document.getElementById('stats-coafura').textContent = stats.coafura;
+        document.getElementById('stats-makeup').textContent = stats.makeup;
+    }
+
+    // Încarcă statisticile detaliate
+    function loadDetailedStats() {
+        const container = document.getElementById('detailed-stats');
+        
+        const serviceStats = {};
+        const serviceRevenue = {};
+        
+        ['manichiura', 'pedichiura', 'coafura', 'makeup'].forEach(service => {
+            serviceStats[service] = appointments.filter(app => 
+                app.serviceType === service && app.status === 'confirmed'
+            ).length;
+            
+            serviceRevenue[service] = appointments
+                .filter(app => app.serviceType === service && app.status === 'confirmed')
+                .reduce((sum, app) => sum + app.price, 0);
+        });
+        
+        const totalAppointments = appointments.filter(app => app.status === 'confirmed').length;
+        const totalRevenue = appointments
+            .filter(app => app.status === 'confirmed')
+            .reduce((sum, app) => sum + app.price, 0);
+        
+        const html = `
+            <div class="stat-card">
+                <div class="stat-number">${totalAppointments}</div>
+                <div class="stat-label">Total Programări</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">${totalRevenue} lei</div>
+                <div class="stat-label">Venit Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: ${serviceColors.manichiura}">${serviceRevenue.manichiura} lei</div>
+                <div class="stat-label">Venit Manichiură</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: ${serviceColors.pedichiura}">${serviceRevenue.pedichiura} lei</div>
+                <div class="stat-label">Venit Pedichiură</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: ${serviceColors.coafura}">${serviceRevenue.coafura} lei</div>
+                <div class="stat-label">Venit Coafură</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: ${serviceColors.makeup}">${serviceRevenue.makeup} lei</div>
+                <div class="stat-label">Venit Makeup</div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+
+    // Afișează notificări
+    function showNotification(message, type = 'success') {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        const icon = notification.querySelector('i');
+        
+        notificationText.textContent = message;
+        notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+        
+        if (type === 'error') {
+            icon.className = 'fas fa-exclamation-circle';
+        } else {
+            icon.className = 'fas fa-check-circle';
+        }
+        
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+</script>
+</body>
+</html>
