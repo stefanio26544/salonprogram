@@ -1,0 +1,447 @@
+<!doctype html>
+<html
+  lang="ro"
+  data-composition-variables='[
+    {"id":"signature","type":"string","label":"Semnătură","default":"by Ioana","maxLength":24},
+    {"id":"ground","type":"color","label":"Fundal","default":"#0b0709"},
+    {"id":"ground-glow","type":"color","label":"Lumină fundal","default":"#22171a"},
+    {"id":"signature-color","type":"color","label":"Culoare semnătură","default":"#c9a36e"}
+  ]'
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Figtree";
+        src: url("assets/fonts/figtree-latin-500-normal.woff2") format("woff2");
+        font-weight: 500;
+      }
+      @font-face {
+        font-family: "Pinyon Script";
+        src: url("assets/fonts/pinyon-script-latin-400-normal.woff2") format("woff2");
+      }
+      /*
+       * IO Signature 3D — I-ul și O-ul din aur masiv. Inelul O coboară pe I
+       * ca un inel pe deget, se rotește, se înclină și se așază în poziția din logo.
+       */
+      :root {
+        --ground: #0b0709;
+        --ground-glow: #22171a;
+        --signature-color: #c9a36e;
+        --font-label: "Figtree", sans-serif;
+        --font-script: "Pinyon Script", cursive;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--ground);
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--ground);
+      }
+      .full {
+        position: absolute;
+        inset: 0;
+      }
+      #ground {
+        background: radial-gradient(56% 62% at 50% 44%, var(--ground-glow), var(--ground) 72%);
+      }
+      #halo {
+        position: absolute;
+        left: 960px;
+        top: 540px;
+        width: 1100px;
+        height: 1100px;
+        margin: -550px 0 0 -550px;
+        border-radius: 50%;
+        background: radial-gradient(closest-side, rgba(233, 196, 143, 0.2), rgba(201, 163, 110, 0.07) 45%, transparent 72%);
+        mix-blend-mode: screen;
+        opacity: 0;
+      }
+      #gl {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+      #lockup {
+        position: absolute;
+        left: 0;
+        width: 1920px;
+        top: 742px;
+        text-align: center;
+      }
+      #word {
+        display: inline-block;
+        font: 500 36px/1 var(--font-label);
+        letter-spacing: 0.72em;
+        padding-left: 0.72em;
+        white-space: nowrap;
+      }
+      #word span {
+        display: inline-block;
+        color: transparent;
+        background: linear-gradient(100deg, #7a5634 0%, #a27a4d 26%, #f3dcae 44%, #ad8152 58%, #8a643d 78%, #7a5634 100%);
+        background-size: 700px 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        opacity: 0;
+      }
+      #sigRow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 34px;
+        margin-top: 30px;
+      }
+      .rule {
+        width: 190px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(201, 163, 110, 0.85));
+      }
+      #ruleR {
+        background: linear-gradient(270deg, transparent, rgba(201, 163, 110, 0.85));
+        transform-origin: 0% 50%;
+      }
+      #ruleL {
+        transform-origin: 100% 50%;
+      }
+      #sig {
+        font: 400 66px/1.1 var(--font-script);
+        color: var(--signature-color);
+        padding: 0 6px 10px;
+        opacity: 0;
+      }
+      #vignette {
+        background: radial-gradient(120% 95% at 50% 46%, transparent 55%, rgba(0, 0, 0, 0.55));
+        pointer-events: none;
+      }
+      #grain {
+        opacity: 0.06;
+        mix-blend-mode: overlay;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="11" data-width="1920" data-height="1080">
+      <div id="ground" class="full clip" data-start="0" data-duration="11" data-track-index="0"></div>
+      <div id="haloClip" class="full clip" data-start="0" data-duration="11" data-track-index="1"><div id="halo"></div></div>
+      <div id="glClip" class="full clip" data-start="0" data-duration="11" data-track-index="2" data-layout-ignore>
+        <canvas id="gl" width="1920" height="1080" aria-label="IO Atelier monogram 3D"></canvas>
+      </div>
+      <div id="lockupClip" class="full clip" data-start="0" data-duration="11" data-track-index="3">
+        <div id="lockup">
+          <div id="word"><span>A</span><span>T</span><span>E</span><span>L</span><span>I</span><span>E</span><span>R</span></div>
+          <div id="sigRow">
+            <div class="rule" id="ruleL"></div>
+            <div id="sig" data-var-text="signature">by Ioana</div>
+            <div class="rule" id="ruleR"></div>
+          </div>
+        </div>
+      </div>
+      <div id="vignette" class="full clip" data-start="0" data-duration="11" data-track-index="4"></div>
+      <svg id="grain" class="full clip" data-start="0" data-duration="11" data-track-index="5" viewBox="0 0 1920 1080" data-layout-ignore>
+        <filter id="grainF"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="11" /><feColorMatrix type="saturate" values="0" /></filter>
+        <rect width="1920" height="1080" filter="url(#grainF)" />
+      </svg>
+    </div>
+
+    <script>
+      // Tipografia și haloul: GSAP. Monograma 3D se desenează separat, din timpul fiecărui cadru.
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#halo", { opacity: 0, scale: 0.75 }, { opacity: 1, scale: 1, duration: 1.2, ease: "power3.out" }, 4.7);
+      tl.to("#halo", { opacity: 0.55, y: -92, duration: 1.2, ease: "power3.inOut" }, 5.9);
+      tl.fromTo(
+        "#word span",
+        { opacity: 0, filter: "blur(8px)" },
+        { opacity: 1, filter: "blur(0px)", duration: 0.55, ease: "power3.out", stagger: 0.085 },
+        6.5,
+      );
+      tl.fromTo("#word span", { backgroundPosition: "-260px 0" }, { backgroundPosition: "120px 0", duration: 2.4, ease: "power2.inOut" }, 6.7);
+      tl.fromTo(["#ruleL", "#ruleR"], { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "expo.out" }, 7.35);
+      tl.fromTo("#sig", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.7, ease: "power3.out" }, 7.5);
+      tl.set({}, {}, 11);
+      window.__timelines["main"] = tl;
+    </script>
+
+    <script type="module">
+      import * as THREE from "./vendor/three.module.min.js";
+
+      window.__hf = window.__hf || {};
+      window.__hf.buildReady = window.__hf.buildReady || {};
+
+      const W = 1920;
+      const H = 1080;
+      const FPS = 30;
+      const SUB = 10; // sub-cadre pentru motion blur real (obturator 180°)
+      const SHUTTER = 0.5 / FPS;
+      const DEG = Math.PI / 180;
+
+      const canvas = document.getElementById("gl");
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(1);
+      renderer.setSize(W, H, false);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.setClearColor(0x000000, 0);
+      renderer.autoClear = false; // golim manual; altfel fiecare sub-cadru ar șterge acumularea
+
+      // ——— Cameră: obiectiv lung, ca la fotografia de bijuterii ———
+      // 1 unitate = 1 unitate din desenul original al monogramei (400×320); cadrul are ~415 unități înălțime.
+      const camera = new THREE.PerspectiveCamera(20, W / H, 100, 4000);
+      const CAM_DIST = (415 / 2) / Math.tan(10 * DEG);
+      camera.position.set(0, 0, CAM_DIST);
+
+      const scene = new THREE.Scene();
+
+      // ——— Mediu: cameră întunecată cu trei softbox-uri; rotim mediul, nu obiectul ———
+      function buildEnvironment() {
+        const env = new THREE.Scene();
+        const room = new THREE.Mesh(new THREE.SphereGeometry(50, 32, 16), new THREE.MeshBasicMaterial({ color: 0x050304, side: THREE.BackSide }));
+        env.add(room);
+        const panel = (w, h, color, intensity, pos, look) => {
+          const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(intensity), side: THREE.DoubleSide }));
+          m.position.set(...pos);
+          m.lookAt(...look);
+          env.add(m);
+        };
+        panel(44, 7, 0xffffff, 6.0, [0, 32, 8], [0, 0, 0]);     // banda de sus
+        panel(6, 36, 0xfff4e6, 5.0, [-33, 4, 16], [0, 0, 0]);   // fâșia din stânga
+        panel(5, 32, 0xffffff, 3.0, [34, 0, -12], [0, 0, 0]);   // contur din dreapta-spate
+        panel(26, 4, 0xfff0dc, 1.4, [0, -28, 20], [0, 0, 0]);   // reflexie de jos
+        // softbox-ul din față, în spatele camerei: gradient de sus în jos pe fețele plate
+        panel(40, 9, 0xffffff, 2.6, [0, 13, 40], [0, 0, 0]);
+        panel(40, 6, 0xffffff, 1.1, [0, 4, 42], [0, 0, 0]);
+        panel(40, 8, 0xffffff, 0.25, [0, -5, 42], [0, 0, 0]);
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        const tex = pmrem.fromScene(env, 0.02).texture;
+        pmrem.dispose();
+        return tex;
+      }
+      scene.environment = buildEnvironment();
+      scene.environmentIntensity = 1.0;
+
+      // ——— Lumini cu umbre: inelul își aruncă umbra pe I când trece prin el ———
+      const key = new THREE.DirectionalLight(0xfff0dc, 1.2);
+      key.position.set(-320, 420, 620);
+      key.castShadow = true;
+      key.shadow.mapSize.set(4096, 4096);
+      Object.assign(key.shadow.camera, { left: -260, right: 260, top: 400, bottom: -260, near: 100, far: 1800 });
+      key.shadow.bias = -0.0008;
+      key.shadow.normalBias = 1.4;
+      scene.add(key);
+      const rim = new THREE.DirectionalLight(0xe9dcff, 0.7);
+      rim.position.set(380, 160, -500);
+      scene.add(rim);
+
+      // ——— Material: aur galben 18k, ușor periat ———
+      const gold = new THREE.MeshPhysicalMaterial({
+        color: 0xf3c886,
+        metalness: 1,
+        roughness: 0.2,
+      });
+
+      // ——— Geometrie: bare de aur cu secțiune bombată (super-elipsă), pe proporțiile exacte din logo ———
+      // sweep: o curbă în planul xy, cu lățime și adâncime variabile; capetele se rotunjesc singure.
+      function sweep(N, M, at, closed) {
+        const pos = [];
+        const idx = [];
+        const n = 2.8; // exponentul super-elipsei: margini rotunjite, față aproape plată
+        const sp = (v) => Math.sign(v) * Math.pow(Math.abs(v), 2 / n);
+        const rows = closed ? N : N + 1;
+        for (let i = 0; i < rows; i++) {
+          const u = i / N;
+          const { c, r, w, d } = at(u); // centru, direcția lățimii (în plan), lățime, adâncime
+          for (let j = 0; j < M; j++) {
+            const ph = (j / M) * Math.PI * 2;
+            const a = sp(Math.cos(ph)) * w / 2;
+            const b = sp(Math.sin(ph)) * d / 2;
+            pos.push(c.x + r.x * a, c.y + r.y * a, b);
+          }
+        }
+        for (let i = 0; i < N; i++) {
+          const i2 = closed ? (i + 1) % N : i + 1;
+          for (let j = 0; j < M; j++) {
+            const j2 = (j + 1) % M;
+            const A = i * M + j, B = i2 * M + j, Cc = i2 * M + j2, D = i * M + j2;
+            idx.push(A, B, D, B, Cc, D);
+          }
+        }
+        const g = new THREE.BufferGeometry();
+        g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+        g.setIndex(idx);
+        g.computeVertexNormals();
+        return g;
+      }
+      // capăt rotunjit: lățimea și adâncimea scad elipsoidal pe ultimii `e` din lungime
+      const capScale = (s, L, e) => {
+        const k = Math.min(s, L - s);
+        return k >= e ? 1 : Math.sqrt(Math.max(0, 1 - Math.pow(1 - k / e, 2)));
+      };
+      function bar(x0, y0, x1, y1, w, d) {
+        const L = Math.hypot(x1 - x0, y1 - y0);
+        const r = new THREE.Vector2(-(y1 - y0) / L, (x1 - x0) / L);
+        return sweep(64, 48, (u) => {
+          const k = capScale(u * L, L, Math.min(w, d) * 0.5);
+          return { c: new THREE.Vector2(x0 + (x1 - x0) * u, y0 + (y1 - y0) * u), r, w: w * k + 0.0001, d: d * k + 0.0001 };
+        }, false);
+      }
+      // I: tija (17 lățime) și serifele (48 × 6), coordonate centrate, y în sus
+      const stemGeos = [bar(0, -83, 0, 83, 17, 9), bar(-24, 83, 24, 83, 7.4, 10.6), bar(-24, -83, 24, -83, 7.4, 10.6)];
+      // O: centrul și grosimea urmează exact inelul din logo (exterior r58, interior elipsă 50×54)
+      const ringGeo = sweep(360, 48, (u) => {
+        const th = u * Math.PI * 2;
+        const ct = Math.cos(th), st = Math.sin(th);
+        const inner = 1 / Math.sqrt((ct * ct) / (50 * 50) + (st * st) / (54 * 54));
+        const mid = (58 + inner) / 2;
+        return { c: new THREE.Vector2(ct * mid, st * mid), r: new THREE.Vector2(ct, st), w: 58 - inner, d: 6.5 };
+      }, true);
+      const stem = new THREE.Group();
+      for (const g of stemGeos) stem.add(new THREE.Mesh(g, gold));
+      const ring = new THREE.Mesh(ringGeo, gold);
+      stem.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+      ring.castShadow = true;
+      ring.receiveShadow = true;
+
+      const mark = new THREE.Group();   // tot semnul, pentru urcarea finală
+      const ringPivot = new THREE.Group();
+      ringPivot.add(ring);
+      mark.add(stem, ringPivot);
+      scene.add(mark);
+
+      // ——— Mișcarea: funcții pure de timp ———
+      const clamp01 = (x) => Math.min(1, Math.max(0, x));
+      const smooth = (x) => x * x * (3 - 2 * x);
+      const easeOutCubic = (x) => 1 - Math.pow(1 - x, 3);
+      const easeOutQuint = (x) => 1 - Math.pow(1 - x, 5);
+      const easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
+      const T_IN = 0.8;      // inelul intră în cadru
+      const T_LAND = 4.7;    // inelul ajunge la locul lui
+      const TILT_END = -14 * DEG; // bucla de jos în fața I-ului, cea de sus în spate — exact ca în logo
+      const qY = new THREE.Quaternion();
+      const qX = new THREE.Quaternion();
+      const AX_Y = new THREE.Vector3(0, 1, 0);
+      const AX_X = new THREE.Vector3(1, 0, 0);
+
+      function pose(t) {
+        // 1 · I-ul iese din întuneric: lumina se ridică, reflexiile alunecă pe metal
+        const reveal = smooth(clamp01((t - 0.1) / 1.6));
+        renderer.toneMappingExposure = 0.15 + 0.95 * reveal;
+        scene.environmentRotation.set(0, -0.9 + 1.1 * easeInOut(clamp01(t / 7)) + 0.25 * smooth(clamp01((t - 8) / 3)), 0);
+
+        // 2 · inelul coboară pe I. Centrul lui stă mereu pe axa tijei, deci tija trece prin el.
+        //     Trece de serifa de sus aproape orizontal, apoi se ridică spre vertical exact cât îi
+        //     permite spațiul de sub serifă (marginea de sus a inelului rămâne sub ea).
+        const u = clamp01((t - T_IN) / (T_LAND - T_IN));
+        const fall = 1 - Math.pow(1 - u, 2.2); // frânare progresivă, ca frecarea pe metal
+        let y = 300 * (1 - fall);
+        const room = (75 - y) / 58;            // cos(unghiul față de vertical) maxim permis
+        const BETA_FLAT = 82 * DEG;
+        let beta = room <= Math.cos(BETA_FLAT) ? BETA_FLAT : Math.max(-TILT_END, Math.acos(Math.min(1, room)));
+        beta += 5 * DEG * Math.sin(u * 11) * (1 - smooth(clamp01((u - 0.45) / 0.4))); // mică precesie în cădere
+        let tilt = -beta;
+        let spin = 2.75 * Math.PI * 2 * (1 - easeOutQuint(u)); // ~2¾ ture în jurul tijei, frânate până la zero
+        let sway = 0;
+
+        // 3 · așezarea: un mic recul amortizat (raport de amortizare ≈ 0.8), ca metalul greu
+        const s = t - T_LAND;
+        if (s > 0) {
+          const env = Math.exp(-3.4 * s);
+          y += -3.2 * env * Math.sin(9.5 * s);
+          tilt += 2.6 * DEG * env * Math.sin(8.0 * s + 0.6);
+          sway = 1.8 * DEG * env * Math.sin(6.4 * s);
+          spin = 0;
+        }
+
+        qY.setFromAxisAngle(AX_Y, spin + sway);
+        qX.setFromAxisAngle(AX_X, tilt);
+        ringPivot.quaternion.copy(qY).multiply(qX);
+        ringPivot.position.set(0, y, 0);
+
+        // 4 · semnul urcă pentru tipografie, camera se apropie ușor pe durata coborârii
+        const lift = easeInOut(clamp01((t - 5.9) / 1.2));
+        mark.position.y = 92 * 0.385 * lift; // 92 px în unități de scenă
+        const dolly = easeOutCubic(clamp01(t / 5.2));
+        camera.position.z = CAM_DIST * (1.08 - 0.08 * dolly);
+        camera.position.x = 14 * (1 - dolly);
+        camera.lookAt(0, 0, 0);
+      }
+
+      // ——— Motion blur prin acumulare de sub-cadre (HDR, apoi tonemapping) ———
+      const rtOpts = { type: THREE.HalfFloatType, colorSpace: THREE.LinearSRGBColorSpace };
+      const sceneRT = new THREE.WebGLRenderTarget(W, H, { ...rtOpts, samples: 4 });
+      const accumRT = new THREE.WebGLRenderTarget(W, H, rtOpts);
+      const quadCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      const quadGeo = new THREE.PlaneGeometry(2, 2);
+      const addMat = new THREE.ShaderMaterial({
+        uniforms: { tSrc: { value: sceneRT.texture }, w: { value: 1 / SUB } },
+        vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
+        fragmentShader: "uniform sampler2D tSrc; uniform float w; varying vec2 vUv; void main(){ gl_FragColor = texture2D(tSrc, vUv) * w; }",
+        blending: THREE.AdditiveBlending, premultipliedAlpha: true, depthTest: false, depthWrite: false, transparent: true, toneMapped: false,
+      });
+      const outMat = new THREE.ShaderMaterial({
+        uniforms: { tSrc: { value: accumRT.texture } },
+        vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
+        fragmentShader: `uniform sampler2D tSrc; varying vec2 vUv;
+          void main(){
+            vec4 c = texture2D(tSrc, vUv);
+            vec3 rgb = c.a > 0.0001 ? c.rgb / c.a : vec3(0.0);
+            gl_FragColor = vec4(max(rgb, 0.0), clamp(c.a, 0.0, 1.0));
+            #include <tonemapping_fragment>
+            #include <colorspace_fragment>
+            gl_FragColor.rgb *= gl_FragColor.a;
+          }`,
+        depthTest: false, depthWrite: false, toneMapped: true, premultipliedAlpha: true,
+      });
+      const addScene = new THREE.Scene();
+      addScene.add(new THREE.Mesh(quadGeo, addMat));
+      const outScene = new THREE.Scene();
+      outScene.add(new THREE.Mesh(quadGeo, outMat));
+
+      function renderAt(t) {
+        renderer.setRenderTarget(accumRT);
+        renderer.setClearColor(0x000000, 0);
+        renderer.clear();
+        for (let i = 0; i < SUB; i++) {
+          const ts = Math.max(0, t - SHUTTER * (i / (SUB - 1)));
+          pose(ts);
+          renderer.setRenderTarget(sceneRT);
+          renderer.setClearColor(0x000000, 0);
+          renderer.clear();
+          renderer.render(scene, camera);
+          renderer.setRenderTarget(accumRT);
+          renderer.render(addScene, quadCam);
+        }
+        pose(t); // expunerea finală corespunde timpului cadrului
+        renderer.setRenderTarget(null);
+        renderer.clear();
+        renderer.render(outScene, quadCam);
+      }
+
+      // Compilăm shaderele o dată, înainte de primul cadru.
+      window.__hf.buildReady["io3d"] = (async () => {
+        renderer.compile(scene, camera);
+        renderAt(0);
+      })();
+
+      window.addEventListener("hf-seek", (e) => renderAt(e.detail.time));
+    </script>
+  </body>
+</html>
