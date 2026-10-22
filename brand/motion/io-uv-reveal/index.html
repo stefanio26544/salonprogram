@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="ro" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/MotionPathPlugin.min.js"></script>
+    <script src="vendor/DrawSVGPlugin.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Figtree";
+        src: url("assets/fonts/figtree-500.woff2") format("woff2");
+        font-weight: 500;
+      }
+      @font-face {
+        font-family: "Bodoni Moda";
+        src: url("assets/fonts/bodoni-moda-italic.woff2") format("woff2");
+        font-style: italic;
+        font-weight: 400;
+      }
+      /* Masa de manichiură nude, gel nude, lumină UV orhidee, aur periat. */
+      :root {
+        --nude-hi: #f4ebe5;
+        --nude-mid: #ddcabf;
+        --nude-lo: #b9a092;
+        --plum: #2a1c23;
+        --gold-text: #c9a273;
+        --bar: #0b0709;
+        --font-label: "Figtree", "Futura", sans-serif;
+        --font-italic: "Bodoni Moda", "Didot", Georgia, serif;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--nude-mid);
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        perspective: 1700px;
+        isolation: isolate;
+        background: var(--nude-mid);
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+      }
+      .wide {
+        inset: -420px;
+      }
+      #bgLayer {
+        background: radial-gradient(48% 50% at 50% 47%, var(--nude-hi), var(--nude-mid) 62%, var(--nude-lo));
+      }
+      .bk {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(closest-side, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.18) 65%, transparent);
+      }
+      #cam,
+      #bgLayer,
+      #fgLayer {
+        transform-style: preserve-3d;
+      }
+      #scene {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: visible;
+      }
+      #wm {
+        position: absolute;
+        left: 0;
+        width: 1920px;
+        top: 808px;
+        text-align: center;
+      }
+      #atelier {
+        font: 500 42px/1 var(--font-label);
+        letter-spacing: 0.42em;
+        padding-left: 0.42em;
+        white-space: nowrap;
+      }
+      .ch {
+        display: inline-block;
+        color: transparent;
+        background: linear-gradient(100deg, #7a5634 0%, #a27a4d 30%, #e8cb98 45%, #ad8152 55%, #8a643d 75%, #7a5634 100%);
+        background-size: 420px 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+      }
+      #byline {
+        margin-top: 22px;
+        font: italic 400 46px/1.2 var(--font-italic);
+        color: #85603e;
+      }
+      #uvTint {
+        background: linear-gradient(180deg, rgba(96, 52, 168, 0.72), rgba(110, 66, 176, 0.45) 45%, rgba(122, 76, 174, 0.3));
+        mix-blend-mode: multiply;
+      }
+      #uvGlow {
+        background: radial-gradient(60% 55% at 50% -5%, rgba(214, 196, 255, 0.55), transparent 70%);
+        mix-blend-mode: screen;
+      }
+      .ray {
+        position: absolute;
+        top: -120px;
+        height: 1250px;
+        background: linear-gradient(180deg, rgba(217, 200, 255, 0.75), rgba(217, 200, 255, 0) 85%);
+        filter: blur(26px);
+        mix-blend-mode: screen;
+        transform-origin: 50% 0;
+      }
+      .mote {
+        position: absolute;
+        border-radius: 50%;
+        background: #f3ecff;
+        box-shadow: 0 0 8px 2px rgba(214, 196, 255, 0.8);
+      }
+      .bar {
+        position: absolute;
+        left: 0;
+        width: 1920px;
+        height: 138px;
+        background: var(--bar);
+        z-index: 8;
+      }
+      #barT {
+        top: 0;
+        transform-origin: 50% 0;
+      }
+      #barB {
+        bottom: 0;
+        transform-origin: 50% 100%;
+      }
+      #root::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 7;
+        background: radial-gradient(118% 92% at 50% 47%, transparent 55%, rgba(58, 32, 26, 0.42));
+      }
+      #grain {
+        mix-blend-mode: overlay;
+        opacity: 0.1;
+        z-index: 9;
+      }
+      .mstroke {
+        fill: none;
+        stroke: #fff;
+        stroke-linecap: round;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="10"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- plan îndepărtat: masa nude cu lumini neclare -->
+      <div id="bgLayer" class="layer wide clip" data-start="0" data-duration="10" data-track-index="0">
+        <div id="bokeh" class="layer"></div>
+      </div>
+
+      <!-- planul principal: monograma, pensula, semnătura -->
+      <div id="cam" class="layer clip" data-start="0" data-duration="10" data-track-index="1">
+        <svg id="scene" viewBox="0 0 1920 1080" aria-label="IO atelier by Ioana">
+          <defs>
+            <linearGradient id="gold" gradientUnits="userSpaceOnUse" x1="140" y1="64" x2="262" y2="236">
+              <stop offset="0" stop-color="#7d5b37" />
+              <stop offset="0.28" stop-color="#c9a273" />
+              <stop offset="0.5" stop-color="#f7e8c9" />
+              <stop offset="0.62" stop-color="#c39a69" />
+              <stop offset="0.82" stop-color="#ead3aa" />
+              <stop offset="1" stop-color="#8e6b45" />
+            </linearGradient>
+            <linearGradient id="gel" gradientUnits="userSpaceOnUse" x1="140" y1="64" x2="262" y2="236">
+              <stop offset="0" stop-color="#d9a796" />
+              <stop offset="0.5" stop-color="#f0cfc2" />
+              <stop offset="1" stop-color="#c58d7b" />
+            </linearGradient>
+            <linearGradient id="fer" x1="0" x2="1">
+              <stop offset="0" stop-color="#8d8a88" />
+              <stop offset="0.5" stop-color="#f4f1ee" />
+              <stop offset="1" stop-color="#7a7674" />
+            </linearGradient>
+            <radialGradient id="poolOut">
+              <stop offset="0" stop-color="#7a4cae" stop-opacity="0.55" />
+              <stop offset="0.55" stop-color="#9874c4" stop-opacity="0.26" />
+              <stop offset="1" stop-color="#9874c4" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient id="poolIn">
+              <stop offset="0" stop-color="#3f1d63" stop-opacity="0.5" />
+              <stop offset="1" stop-color="#3f1d63" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient id="bounce">
+              <stop offset="0" stop-color="#e9c48f" stop-opacity="0.55" />
+              <stop offset="1" stop-color="#e9c48f" stop-opacity="0" />
+            </radialGradient>
+            <linearGradient id="cureG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fff" />
+              <stop offset="0.86" stop-color="#fff" />
+              <stop offset="1" stop-color="#000" />
+            </linearGradient>
+            <linearGradient id="frontG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f4ecff" stop-opacity="0" />
+              <stop offset="0.5" stop-color="#fbf7ff" />
+              <stop offset="1" stop-color="#f4ecff" stop-opacity="0" />
+            </linearGradient>
+            <linearGradient id="shine" x1="0" x2="1">
+              <stop offset="0" stop-color="#fff" stop-opacity="0" />
+              <stop offset="0.5" stop-color="#fff" stop-opacity="0.85" />
+              <stop offset="1" stop-color="#fff" stop-opacity="0" />
+            </linearGradient>
+
+            <clipPath id="knot"><rect x="189" y="197" width="22" height="18" /></clipPath>
+            <clipPath id="mclip">
+              <path id="ringClip" clip-rule="evenodd" d="M142 150 A58 58 0 1 0 258 150 A58 58 0 1 0 142 150 Z M150 150 A50 54 0 1 0 250 150 A50 54 0 1 0 150 150 Z" />
+              <path d="M176 64 H224 V70 H208.5 V230 H224 V236 H176 V230 H191.5 V70 H176 Z" />
+            </clipPath>
+
+            <!-- gel umed: relief fin și luciu -->
+            <filter id="wet" x="-10%" y="-10%" width="120%" height="120%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="1.3" result="bl" />
+              <feSpecularLighting in="bl" surfaceScale="2.6" specularConstant="1.1" specularExponent="20" lighting-color="#fff4e2" result="sp">
+                <fePointLight id="wetLight" x="120" y="40" z="130" />
+              </feSpecularLighting>
+              <feComposite in="sp" in2="SourceAlpha" operator="in" result="sp2" />
+              <feComposite in="SourceGraphic" in2="sp2" operator="arithmetic" k1="0" k2="1" k3="0.85" k4="0" />
+            </filter>
+            <!-- aur periat: dâre fine pe orizontală + lumină speculară mobilă -->
+            <filter id="goldfx" x="-10%" y="-10%" width="120%" height="120%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.004 0.7" numOctaves="2" seed="3" result="n" />
+              <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0.9 0 0 0 -0.33" result="st" />
+              <feComposite in="st" in2="SourceAlpha" operator="in" result="st2" />
+              <feMerge result="brushed"><feMergeNode in="SourceGraphic" /><feMergeNode in="st2" /></feMerge>
+              <feGaussianBlur in="SourceAlpha" stdDeviation="1.3" result="bl" />
+              <feSpecularLighting in="bl" surfaceScale="2.6" specularConstant="1.1" specularExponent="22" lighting-color="#fff4e2" result="sp">
+                <fePointLight id="goldLight" x="-80" y="40" z="130" />
+              </feSpecularLighting>
+              <feComposite in="sp" in2="SourceAlpha" operator="in" result="sp2" />
+              <feComposite in="brushed" in2="sp2" operator="arithmetic" k1="0" k2="1" k3="0.85" k4="0" />
+            </filter>
+            <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3.5" /></filter>
+            <filter id="glow" x="-300%" y="-300%" width="700%" height="700%">
+              <feGaussianBlur stdDeviation="2.2" result="b" />
+              <feMerge><feMergeNode in="b" /><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+            <filter id="shadowBlur" x="-100%" y="-200%" width="300%" height="500%"><feGaussianBlur stdDeviation="2.4" /></filter>
+
+            <!-- tușele de gel: aceleași trasee ca pensula -->
+            <mask id="mGelO" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="320">
+              <path id="gL" class="mstroke" stroke-width="18" d="M200,96 A54,54 0 0 0 200,204" />
+              <path id="gR" class="mstroke" stroke-width="18" d="M200,96 A54,54 0 0 1 200,204" />
+            </mask>
+            <mask id="mGelI" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="320">
+              <path id="gI" class="mstroke" stroke-width="22" d="M200,66 L200,234" />
+              <path id="gB" class="mstroke" stroke-width="10" d="M177,233 L223,233" />
+              <path id="gT" class="mstroke" stroke-width="10" d="M177,67 L223,67" />
+            </mask>
+            <mask id="mCure" maskUnits="userSpaceOnUse" x="0" y="-400" width="400" height="800">
+              <rect id="cureRect" x="0" y="-330" width="400" height="320" fill="url(#cureG)" />
+            </mask>
+          </defs>
+
+          <g id="L" transform="translate(280 -85.6) scale(3.4)">
+            <!-- lumina UV căzută pe masă și reflexia caldă a aurului -->
+            <g id="pool" opacity="0">
+              <ellipse cx="200" cy="150" rx="150" ry="140" fill="url(#poolOut)" />
+              <ellipse cx="200" cy="150" rx="92" ry="104" fill="url(#poolIn)" />
+            </g>
+            <ellipse id="bounceGlow" cx="200" cy="158" rx="150" ry="130" fill="url(#bounce)" opacity="0" />
+
+            <!-- gelul nude, pictat de pensulă -->
+            <g id="gelLayer" filter="url(#wet)">
+              <path mask="url(#mGelO)" fill="url(#gel)" fill-rule="evenodd" d="M142 150 A58 58 0 1 0 258 150 A58 58 0 1 0 142 150 Z M150 150 A50 54 0 1 0 250 150 A50 54 0 1 0 150 150 Z" />
+              <path mask="url(#mGelI)" fill="url(#gel)" d="M176 64 H224 V70 H208.5 V230 H224 V236 H176 V230 H191.5 V70 H176 Z" />
+            </g>
+
+            <!-- gelul fluorescent sub UV -->
+            <g id="fluo" opacity="0">
+              <g filter="url(#soft)" fill="#f0def6">
+                <path fill-rule="evenodd" d="M142 150 A58 58 0 1 0 258 150 A58 58 0 1 0 142 150 Z M150 150 A50 54 0 1 0 250 150 A50 54 0 1 0 150 150 Z" />
+                <path d="M176 64 H224 V70 H208.5 V230 H224 V236 H176 V230 H191.5 V70 H176 Z" />
+              </g>
+              <g opacity="0.35" fill="#efe4ff">
+                <path fill-rule="evenodd" d="M142 150 A58 58 0 1 0 258 150 A58 58 0 1 0 142 150 Z M150 150 A50 54 0 1 0 250 150 A50 54 0 1 0 150 150 Z" />
+                <path d="M176 64 H224 V70 H208.5 V230 H224 V236 H176 V230 H191.5 V70 H176 Z" />
+              </g>
+            </g>
+
+            <!-- aurul, descoperit de frontul de întărire; ligatura: inelul trece peste I în nod -->
+            <g mask="url(#mCure)">
+              <g filter="url(#goldfx)">
+                <path fill="url(#gold)" fill-rule="evenodd" d="M142 150 A58 58 0 1 0 258 150 A58 58 0 1 0 142 150 Z M150 150 A50 54 0 1 0 250 150 A50 54 0 1 0 150 150 Z" />
+                <path fill="url(#gold)" stroke="#e5d6cc" stroke-width="3" paint-order="stroke" d="M176 64 H224 V70 H208.5 V230 H224 V236 H176 V230 H191.5 V70 H176 Z" />
+                <g clip-path="url(#knot)">
+                  <path fill="url(#gold)" fill-rule="evenodd" stroke="#e5d6cc" stroke-width="3" paint-order="stroke" d="M142 150 A58 58 0 1 0 258 150 A58 58 0 1 0 142 150 Z M150 150 A50 54 0 1 0 250 150 A50 54 0 1 0 150 150 Z" />
+                </g>
+              </g>
+            </g>
+
+            <!-- frontul de întărire și reflexiile LED-urilor, doar pe litere -->
+            <g clip-path="url(#mclip)">
+              <g id="uvOnLetters" opacity="0">
+                <rect id="front" x="100" y="-50" width="200" height="16" fill="url(#frontG)" />
+                <g id="leds" filter="url(#glow)" fill="#fbf7ff" opacity="0.8"></g>
+              </g>
+              <g opacity="0.55">
+                <rect id="sweep" x="-120" y="0" width="70" height="320" fill="url(#shine)" transform="skewX(-18)" />
+              </g>
+            </g>
+
+            <!-- pensula: vârful e în (0,0) -->
+            <g id="brush" opacity="0">
+              <ellipse cx="9" cy="5" rx="9" ry="3" fill="#4a2c22" opacity="0.3" filter="url(#shadowBlur)" />
+              <g transform="rotate(32)">
+                <path d="M0 0 C-3 -6 -4 -14 -3.6 -21 H3.6 C4 -14 3 -6 0 0 Z" fill="#d9a796" />
+                <path d="M0 0 C-1.2 -3 -1.6 -6 -1.4 -9 H1.4 C1.6 -6 1.2 -3 0 0 Z" fill="#b97a68" />
+                <rect x="-4.2" y="-32" width="8.4" height="11.5" rx="1" fill="url(#fer)" />
+                <rect x="-3.2" y="-104" width="6.4" height="73" rx="3" fill="#2a1c23" />
+                <rect x="-3.2" y="-44" width="6.4" height="2.2" fill="#c9a273" />
+              </g>
+            </g>
+          </g>
+        </svg>
+
+        <div id="wm">
+          <div id="atelier"><span class="ch">A</span><span class="ch">T</span><span class="ch">E</span><span class="ch">L</span><span class="ch">I</span><span class="ch">E</span><span class="ch">R</span></div>
+          <div id="byline">by Ioana</div>
+        </div>
+      </div>
+
+      <!-- lampa UV din afara cadrului: nuanță, strălucire de sus, raze și praf în raze -->
+      <div id="uvLight" class="layer clip" data-start="0" data-duration="10" data-track-index="2">
+        <div id="uvTint" class="layer"></div>
+        <div id="uvGlow" class="layer"></div>
+        <div id="rays" class="layer"></div>
+        <div id="motes" class="layer"></div>
+      </div>
+
+      <!-- plan apropiat, neclar, care trece prin fața logo-ului -->
+      <div id="fgLayer" class="layer wide clip" data-start="0" data-duration="10" data-track-index="3"></div>
+
+      <div id="bars" class="layer clip" data-start="0" data-duration="10" data-track-index="4">
+        <div id="barT" class="bar"></div>
+        <div id="barB" class="bar"></div>
+      </div>
+
+      <svg id="grain" class="layer clip" data-start="0" data-duration="10" data-track-index="5" width="1920" height="1080">
+        <filter id="noise">
+          <feTurbulence id="turb" type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="1" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="1920" height="1080" filter="url(#noise)" />
+      </svg>
+
+      <audio id="sound" src="assets/sound.wav" data-start="0" data-duration="10" data-track-index="6"></audio>
+    </div>
+
+    <script>
+      gsap.registerPlugin(MotionPathPlugin, DrawSVGPlugin);
+
+      function mulberry32(a) {
+        return function () {
+          a |= 0;
+          a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      const rand = mulberry32(2611);
+      const SVGNS = "http://www.w3.org/2000/svg";
+
+      // ---------- elemente generate determinist ----------
+      const bokehEl = document.getElementById("bokeh");
+      for (let i = 0; i < 9; i++) {
+        const d = document.createElement("div");
+        d.className = "bk";
+        const s = 90 + rand() * 260;
+        Object.assign(d.style, {
+          width: s + "px",
+          height: s + "px",
+          left: 420 + rand() * 1920 - s / 2 + "px",
+          top: 420 + rand() * 1080 - s / 2 + "px",
+          opacity: (0.25 + rand() * 0.35).toFixed(2),
+        });
+        bokehEl.appendChild(d);
+      }
+      gsap.set(bokehEl, { filter: "blur(22px)" });
+
+      const fgEl = document.getElementById("fgLayer");
+      [
+        [380, 1240, 300, "rgba(241,211,196,0.6)"],
+        [2160, 380, 230, "rgba(255,255,255,0.45)"],
+      ].forEach(([x, y, r, c]) => {
+        const d = document.createElement("div");
+        Object.assign(d.style, {
+          position: "absolute",
+          left: x - r + "px",
+          top: y - r + "px",
+          width: 2 * r + "px",
+          height: 2 * r + "px",
+          borderRadius: "50%",
+          background: `radial-gradient(closest-side, ${c}, transparent)`,
+          filter: "blur(40px)",
+        });
+        fgEl.appendChild(d);
+      });
+
+      const raysEl = document.getElementById("rays");
+      [
+        [560, -8, 120, 0.4],
+        [790, 4, 90, 0.5],
+        [1000, -3, 150, 0.45],
+        [1230, 6, 100, 0.5],
+        [1420, -6, 80, 0.35],
+      ].forEach(([x, rot, w, o], k) => {
+        const d = document.createElement("div");
+        d.className = "ray";
+        d.id = "ray" + k;
+        Object.assign(d.style, { left: x - w / 2 + "px", width: w + "px", opacity: o });
+        gsap.set(d, { rotation: rot });
+        raysEl.appendChild(d);
+      });
+
+      const motesEl = document.getElementById("motes");
+      const motes = [];
+      for (let i = 0; i < 46; i++) {
+        const d = document.createElement("div");
+        d.className = "mote";
+        const s = 1.5 + rand() * 3.5;
+        Object.assign(d.style, {
+          width: s + "px",
+          height: s + "px",
+          left: 480 + rand() * 1000 + "px",
+          top: rand() * 900 + "px",
+          opacity: (0.3 + rand() * 0.7).toFixed(2),
+        });
+        motesEl.appendChild(d);
+        motes.push({ d, dx: -30 + rand() * 60, dy: 40 + rand() * 90 });
+      }
+
+      const leds = document.getElementById("leds");
+      [104, 200].forEach((row) => {
+        for (let i = 0; i < 11; i++) {
+          const u = i / 10;
+          const c = document.createElementNS(SVGNS, "circle");
+          c.setAttribute("cx", (150 + u * 100).toFixed(1));
+          c.setAttribute("cy", (row + Math.pow(u - 0.5, 2) * 40).toFixed(1));
+          c.setAttribute("r", "0.95");
+          leds.appendChild(c);
+        }
+      });
+
+      // ---------- camera: urmărește pensula, apoi se retrage pe logo ----------
+      // chei: [timp, punct urmărit x, y (în coordonatele logo-ului), zoom]
+      const KEYS = [
+        [0.0, 236, 96, 2.15],
+        [0.6, 186, 112, 2.0],
+        [1.3, 178, 186, 1.96],
+        [1.55, 222, 112, 1.96],
+        [2.25, 222, 186, 1.92],
+        [2.5, 200, 92, 1.95],
+        [3.0, 200, 196, 1.9],
+        [3.6, 200, 150, 1.82],
+        [4.2, 200, 150, 1.72],
+        [5.9, 200, 160, 1.45],
+        [7.4, 200, 184, 1.0],
+        [10.4, 200, 184, 1.03],
+      ];
+      function hermite(t, idx) {
+        let k = 0;
+        while (k < KEYS.length - 2 && t > KEYS[k + 1][0]) k++;
+        const p = (j) => KEYS[Math.max(0, Math.min(KEYS.length - 1, j))];
+        const t0 = p(k)[0], t1 = p(k + 1)[0];
+        const h = t1 - t0;
+        const u = Math.max(0, Math.min(1, (t - t0) / h));
+        const slope = (a, b) => (p(b)[idx] - p(a)[idx]) / (p(b)[0] - p(a)[0] || 1);
+        const m0 = k === 0 ? 0 : 0.5 * (slope(k - 1, k) + slope(k, k + 1));
+        const m1 = 0.5 * (slope(k, k + 1) + slope(k + 1, k + 2));
+        const u2 = u * u, u3 = u2 * u;
+        return (2 * u3 - 3 * u2 + 1) * p(k)[idx] + (u3 - 2 * u2 + u) * h * m0 + (-2 * u3 + 3 * u2) * p(k + 1)[idx] + (u3 - u2) * h * m1;
+      }
+      const smooth = (a, b, t) => {
+        const x = Math.max(0, Math.min(1, (t - a) / (b - a)));
+        return x * x * (3 - 2 * x);
+      };
+      function camAt(t, damp) {
+        const fx = 200 + (hermite(t, 1) - 200) * damp;
+        const fy = 184 + (hermite(t, 2) - 184) * damp;
+        const s = 1 + (hermite(t, 3) - 1) * damp;
+        const level = 1 - smooth(5.8, 7.4, t);
+        const px = 280 + 3.4 * fx, py = -85.6 + 3.4 * fy;
+        return {
+          x: (960 - px) * s,
+          y: (540 - py) * s,
+          scale: s,
+          rotationX: (16 * level + 0.6 * Math.sin(t * 0.9)) * damp,
+          rotationZ: (-2.2 * level + 0.35 * Math.sin(t * 0.55)) * damp,
+        };
+      }
+      const camState = { t: 0 };
+      function applyCam() {
+        const t = camState.t;
+        gsap.set("#cam", camAt(t, 1));
+        gsap.set("#bgLayer", camAt(t, 0.45));
+        gsap.set("#fgLayer", camAt(t, 1.7));
+      }
+      gsap.set(["#cam", "#bgLayer", "#fgLayer"], { transformOrigin: "50% 50%" });
+      applyCam();
+
+      // ---------- stări inițiale ----------
+      gsap.set(".mstroke", { drawSVG: "0%" });
+      gsap.set(".ch", { opacity: 0 });
+      gsap.set("#byline", { opacity: 0 });
+      gsap.set("#uvLight", { opacity: 0 });
+
+      const tl = gsap.timeline({ paused: true });
+      tl.to(camState, { t: 10, duration: 10, ease: "none", onUpdate: applyCam }, 0);
+
+      // ---------- 1. pensula pictează monograma în gel ----------
+      const STROKES = [
+        // [masca, traseul pensulei, start, durată, ease]
+        [null, "M330,-70 Q290,30 200,96", 0, 0.6, "power2.out"],
+        ["#gL", "M200,96 A54,54 0 0 0 200,204", 0.6, 0.7, "sine.inOut"],
+        [null, "M200,204 Q262,150 200,96", 1.3, 0.25, "sine.inOut"],
+        ["#gR", "M200,96 A54,54 0 0 1 200,204", 1.55, 0.7, "sine.inOut"],
+        [null, "M200,204 Q252,140 200,66", 2.25, 0.25, "sine.inOut"],
+        ["#gI", "M200,66 L200,234", 2.5, 0.45, "sine.inOut"],
+        [null, "M200,234 Q188,240 177,233", 2.95, 0.1, "sine.inOut"],
+        ["#gB", "M177,233 L223,233", 3.05, 0.15, "sine.inOut"],
+        [null, "M223,233 Q150,150 177,67", 3.2, 0.2, "sine.inOut"],
+        ["#gT", "M177,67 L223,67", 3.4, 0.15, "sine.inOut"],
+        [null, "M223,67 Q262,-10 345,-90", 3.55, 0.45, "power2.in"],
+      ];
+      tl.set("#brush", { opacity: 1 }, 0.001);
+      STROKES.forEach(([mask, path, start, dur, ease]) => {
+        tl.to("#brush", { motionPath: { path }, duration: dur, ease }, start);
+        if (mask) {
+          tl.set(mask, { opacity: 1 }, start);
+          tl.fromTo(mask, { drawSVG: "0%" }, { drawSVG: "100%", duration: dur, ease }, start);
+        }
+        // pensula se ridică puțin între tușe
+        if (!mask && start > 0 && start < 3.5) {
+          tl.to("#brush", { keyframes: [{ scale: 1.05, duration: dur / 2 }, { scale: 1, duration: dur / 2 }], ease: "sine.inOut" }, start);
+        }
+      });
+      tl.set("#brush", { opacity: 0 }, 4.0);
+      // lumina de studio alunecă pe gelul ud cât lucrează pensula
+      tl.to("#wetLight", { attr: { x: 300 }, duration: 3.8, ease: "sine.inOut" }, 0.2);
+
+      // ---------- 2. lampa UV: pâlpâie, întărește gelul de sus în jos, se stinge ----------
+      const ON = 4.0, FLD = 2.4, CURE = 4.4, CURE_D = 1.5;
+      const FLICKER = [
+        [0.7, 0.073],
+        [0.25, 0.073],
+        [1, 0.098],
+        [0.92, 0.122],
+        [1, 0.434],
+        [0.4, 0.059],
+        [0.75, 0.058],
+        [0, 0.083],
+      ];
+      function flicker(target, peak) {
+        tl.fromTo(
+          target,
+          { opacity: 0 },
+          { keyframes: FLICKER.map(([v, f]) => ({ opacity: v * peak, duration: f * FLD, ease: "none" })) },
+          ON
+        );
+      }
+      flicker("#uvLight", 1);
+      flicker("#pool", 1);
+      flicker("#fluo", 1);
+      flicker("#uvOnLetters", 1);
+      tl.to("#cureRect", { attr: { y: 0 }, duration: CURE_D, ease: "sine.inOut" }, CURE);
+      tl.to("#front", { attr: { y: 290 }, duration: CURE_D, ease: "sine.inOut" }, CURE);
+      tl.fromTo("#leds", { x: -8, y: -2 }, { x: 10, y: 4, duration: 1.9, ease: "none" }, ON);
+      tl.to("#gelLayer", { opacity: 0, duration: 0.4, ease: "none" }, CURE + CURE_D);
+      tl.fromTo("#bounceGlow", { opacity: 0 }, { opacity: 1, duration: 1.2, ease: "power2.out" }, ON + 0.8 * FLD - 0.2);
+      // razele respiră ușor și praful plutește în ele
+      [0, 1, 2, 3, 4].forEach((k) =>
+        tl.to("#ray" + k, { keyframes: [{ scaleX: 0.85 }, { scaleX: 1.1 }, { scaleX: 1 }], duration: 2.4, ease: "sine.inOut" }, ON)
+      );
+      motes.forEach((m) => tl.fromTo(m.d, { x: 0, y: 0 }, { x: m.dx, y: m.dy, duration: 10, ease: "none" }, 0));
+
+      // ---------- 3. retragerea: rack focus pe fundal, letterbox care se deschide ----------
+      tl.to("#bokeh", { filter: "blur(9px)", duration: 2.6, ease: "sine.inOut" }, 4.6);
+      tl.fromTo(["#barT", "#barB"], { scaleY: 1 }, { scaleY: 0, duration: 1.6, ease: "power2.inOut" }, 6.0);
+
+      // ---------- 4. aurul prinde lumina, semnătura ----------
+      const END = 7.0;
+      tl.to("#goldLight", { attr: { x: 480 }, duration: 1.8, ease: "power2.inOut" }, END - 0.1);
+      tl.to("#goldLight", { attr: { x: 560, y: 10 }, duration: 1.4, ease: "none" }, END + 1.7);
+      tl.fromTo("#sweep", { attr: { x: -120 } }, { attr: { x: 520 }, duration: 1.7, ease: "power2.inOut" }, END);
+      tl.fromTo(
+        ".ch",
+        { opacity: 0, x: (i) => (i - 3) * 16, y: 10 },
+        { opacity: 1, x: 0, y: 0, duration: 1.8, ease: "power3.out", stagger: 0.05 },
+        END + 0.1
+      );
+      tl.fromTo(".ch", { backgroundPositionX: "420px" }, { backgroundPositionX: "-140px", duration: 2.6, ease: "sine.inOut" }, END + 0.4);
+      tl.fromTo("#byline", { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 1.0, ease: "power2.out" }, END + 0.7);
+
+      // ---------- granulație de film ----------
+      tl.fromTo("#turb", { attr: { seed: 1 } }, { attr: { seed: 301 }, duration: 10, ease: "none" }, 0);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
