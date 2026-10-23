@@ -427,7 +427,8 @@
         const low = Math.acos(Math.min(1, Math.max(-1, (y - Y_REST) / 58)));
         const high = Math.acos(Math.min(1, Math.max(-1, (75 - y) / 58)));
         beta = Math.max(beta, low);
-        if (y + 58 * Math.cos(beta) > 75) beta = Math.max(beta, high);
+        // limita serifei de sus contează doar cât timp inelul e sub ea
+        if (y < 75 && y + 58 * Math.cos(beta) > 75) beta = Math.max(beta, Math.min(high, 90 * DEG));
         let spin = -1.5 * Math.PI * 2 * (1 - e);
         let tilt = -beta;
 
